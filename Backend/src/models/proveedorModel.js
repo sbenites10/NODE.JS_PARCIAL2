@@ -61,16 +61,44 @@ export const obtenerPedidosPorProveedorDB = async (proveedorId) => {
           p.estado,
           p.total,
           z.nombre AS zona,
-          u.nombre AS tendero
+          u.nombre AS tendero,
+          COALESCE(
+            GROUP_CONCAT(
+              CONCAT('x', pd.cantidad, ' ', pr.nombre)
+              ORDER BY pr.nombre SEPARATOR '\n'
+            ),
+            ''
+          ) AS productos
        FROM pedidos p
        JOIN zonas z ON p.zona_id = z.id
        JOIN usuarios u ON p.tendero_id = u.id
        JOIN consolidaciones c ON p.consolidacion_id = c.id
-       WHERE c.proveedor_id = ?`,
+       LEFT JOIN pedido_detalle pd ON pd.pedido_id = p.id
+       LEFT JOIN productos pr ON pr.id = pd.producto_id
+       WHERE c.proveedor_id = ?
+       GROUP BY p.id, p.fecha, p.estado, p.total, z.nombre, u.nombre`,
       [proveedorId]
     );
 
-    return rows;
+    // Añadir el campo "acciones" dinámicamente según el estado
+    const pedidosConAcciones = rows.map((p) => {
+      let acciones = ["Ver detalles"];
+      switch (p.estado) {
+        case "en consolidación":
+          acciones.push("Confirmar disponibilidad");
+          break;
+        case "confirmado":
+          acciones.push("Marcar como despachado");
+          break;
+        case "despachado":
+          acciones.push("Marcar como entregado");
+          break;
+        // entregado / cancelado solo pueden ver detalles
+      }
+      return { ...p, acciones };
+    });
+
+    return pedidosConAcciones;
   } catch (error) {
     console.error("❌ Error SQL:", error);
     throw error;

@@ -86,6 +86,7 @@ function ProveedorDashboard() {
                 <th>Tendero</th>
                 <th>Fecha</th>
                 <th>Estado</th>
+                <th>Productos</th>
                 <th>Total</th>
               </tr>
             </thead>
@@ -97,6 +98,15 @@ function ProveedorDashboard() {
                   <td>{p.tendero}</td>
                   <td>{new Date(p.fecha).toLocaleDateString()}</td>
                   <td>{p.estado}</td>
+                  <td>
+                    {p.productos && p.productos.trim().length > 0 ? (
+                      p.productos.split('\n').map((linea, idx) => (
+                        <div key={idx}>{linea}</div>
+                      ))
+                    ) : (
+                      <span>-</span>
+                    )}
+                  </td>
                   <td>${p.total.toLocaleString()}</td>
                 </tr>
               ))}
