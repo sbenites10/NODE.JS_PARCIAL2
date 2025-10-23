@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../App.css"; // Usa los estilos globales
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,12 +23,12 @@ function LoginForm() {
         alert(`✅ Bienvenido, ${data.nombre} (${data.rol})`);
 
         // Redirigir según el rol:
-        if (data.rol === "tendero") {
-          window.location.href = "/tendero";
+          if (data.rol === "admin") {
+          navigate("/plataforma");
+        } else if (data.rol === "tendero") {
+          navigate("/tendero");
         } else if (data.rol === "proveedor") {
-          window.location.href = "/proveedor";
-        } else if (data.rol === "admin") {
-          window.location.href = "/plataforma";
+          navigate("/proveedor");
         }
       } else {
         alert(`⚠️ ${data.message}`);

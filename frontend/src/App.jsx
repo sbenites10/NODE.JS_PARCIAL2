@@ -1,12 +1,18 @@
-import React from "react";
-import LoginForm from "./components/LoginForm"; // importa tu componente de login
-import "./App.css"; // importa los estilos globales
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginForm from "./components/LoginForm";
+import PlataformaPage from "./pages/PlataformaPage";
+import ProductosPage from "./pages/ProductosPage";
+// (luego agregarás TenderoPage y ProveedorPage también)
 
 function App() {
   return (
-    <div>
-      <LoginForm />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginForm />} />
+        <Route path="/plataforma" element={<PlataformaPage />} />
+        <Route path="/listado-productos" element={<ProductosPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
