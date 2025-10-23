@@ -1,16 +1,16 @@
 import express from "express";
 import {
-  listarProveedores,
-  obtenerProveedor,
+  obtenerProveedores,
+  obtenerProveedorPorId,
   crearProveedor,
   actualizarProveedor,
-  eliminarProveedor,
+  eliminarProveedor
 } from "../controllers/proveedorController.js";
 
 const router = express.Router();
 
-router.get("/", listarProveedores);
-router.get("/:id", obtenerProveedor);
+router.get("/", obtenerProveedores);
+router.get("/:id", obtenerProveedorPorId);
 router.post("/", crearProveedor);
 router.put("/:id", actualizarProveedor);
 router.delete("/:id", eliminarProveedor);

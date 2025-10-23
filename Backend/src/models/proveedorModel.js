@@ -19,20 +19,27 @@ export const getProveedorById = async (id) => {
 export const createProveedor = async (proveedor) => {
   const { nombre, email, password, contacto, zona_id } = proveedor;
   const rol = "proveedor";
+
   const [result] = await pool.query(
-    "INSERT INTO usuarios (nombre, email, password, rol, contacto, zona_id) VALUES (?, ?, ?, ?, ?, ?)",
+    `INSERT INTO usuarios (nombre, email, password, rol, contacto, zona_id)
+     VALUES (?, ?, ?, ?, ?, ?)`,
     [nombre, email, password, rol, contacto, zona_id]
   );
+
   return { id: result.insertId, ...proveedor };
 };
 
 // Actualizar proveedor
 export const updateProveedor = async (id, proveedor) => {
   const { nombre, email, contacto, zona_id } = proveedor;
+
   const [result] = await pool.query(
-    "UPDATE usuarios SET nombre=?, email=?, contacto=?, zona_id=? WHERE id=? AND rol='proveedor'",
+    `UPDATE usuarios 
+     SET nombre=?, email=?, contacto=?, zona_id=? 
+     WHERE id=? AND rol='proveedor'`,
     [nombre, email, contacto, zona_id, id]
   );
+
   return result.affectedRows > 0;
 };
 
