@@ -5,6 +5,7 @@ import connection from "./src/config/database.js";
 import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import productoRoutes from "./src/routes/productoRoutes.js"; // ✅ nombre correcto
 import proveedorRoutes from "./src/routes/proveedorRoutes.js"; // ✅ nombre correcto
+import pedidoRoutes from "./src/routes/pedidoRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/proveedores", proveedorRoutes); 
+app.use("/api/pedidos", pedidoRoutes);
 
 // 🔍 Ruta de prueba
 app.get("/api/usuarios", async (req, res) => {
@@ -30,4 +32,5 @@ app.get("/api/usuarios", async (req, res) => {
 
 // 🚀 Servidor
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Servidor corriendo en http://localhost:${PORT}`));
+const HOST = '0.0.0.0';
+app.listen(PORT, HOST, () => console.log(`✅ Servidor corriendo en http://${HOST}:${PORT}`));
