@@ -1,16 +1,17 @@
-import express from "express";
-import cors from "cors";
+import express from 'express';
+import cors from 'cors';
+import connection from './src/config/database.js';
 import dotenv from "dotenv";
-import connection from "./src/config/database.js";
 
-// ✅ Importar rutas correctamente
 import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import productoRoutes from "./src/routes/productoRoutes.js";
 import proveedorRoutes from "./src/routes/proveedorRoutes.js";
+import productoRoutes from "./src/routes/productoRoutes.js";
 
 dotenv.config();
-
 const app = express();
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 

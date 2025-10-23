@@ -22,19 +22,24 @@ function LoginForm() {
       if (response.ok) {
         alert(`✅ Bienvenido, ${data.nombre} (${data.rol})`);
 
-        // Redirigir según el rol:
-          if (data.rol === "admin") {
-          navigate("/plataforma");
-        } else if (data.rol === "tendero") {
-          navigate("/tendero");
+        // Guardar datos del usuario en localStorage
+        localStorage.setItem("rol", data.rol);
+        localStorage.setItem("nombre", data.nombre);
+
+        // Redirigir según el rol
+        if (data.rol === "tendero") {
+          window.location.href = "/tendero";
         } else if (data.rol === "proveedor") {
-          navigate("/proveedor");
+          localStorage.setItem("proveedorId", data.id); // Guarda ID del proveedor
+          window.location.href = "/proveedor"; // Redirige a la vista del proveedor
+        } else if (data.rol === "admin") {
+          window.location.href = "/plataforma";
         }
       } else {
         alert(`⚠️ ${data.message}`);
       }
     } catch (error) {
-      console.error("Error en el login:", error);
+      console.error("❌ Error en el login:", error);
       alert("❌ Error al conectar con el servidor");
     }
   };

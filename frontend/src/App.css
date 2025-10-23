@@ -111,6 +111,7 @@ th, td {
   padding: 12px;
   border-bottom: 1px solid #E5E7EB;
   text-align: left;
+  color: black;
 }
 
 th {
@@ -119,8 +120,12 @@ th {
   font-weight: 600;
 }
 
-tr:hover {
-  background-color: #F9FAFB;
+tr:hover{
+  background-color: #374151;
+}
+
+tr:hover td {
+  color: white;
 }
 
 /* ====== TARJETAS ====== */
