@@ -84,7 +84,7 @@ export const obtenerPedidosPorProveedorDB = async (proveedorId) => {
     const pedidosConAcciones = rows.map((p) => {
       let acciones = ["Ver detalles"];
       switch (p.estado) {
-        case "en consolidación":
+        case "consolidacion":
           acciones.push("Confirmar disponibilidad");
           break;
         case "confirmado":

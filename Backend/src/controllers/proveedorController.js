@@ -76,6 +76,7 @@ export const obtenerPedidosPorProveedor = async (req, res) => {
 
   try {
     const pedidos = await obtenerPedidosPorProveedorDB(proveedorId);
+    console.log(`✅ ${pedidos.length} pedidos encontrados para proveedor ${proveedorId}`);
     res.status(200).json(pedidos);
   } catch (error) {
     console.error("❌ Error en obtenerPedidosPorProveedor:", error);
