@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connection from "./src/config/database.js";
 import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import productoRoutes from "./src/routes/productoRoutes.js"; // ✅ nombre correcto
+import proveedorRoutes from "./src/routes/proveedorRoutes.js"; // ✅ nombre correcto
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 // ✅ Rutas correctas
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/productos", productoRoutes);
+app.use("/api/proveedores", proveedorRoutes); 
 
 // 🔍 Ruta de prueba
 app.get("/api/usuarios", async (req, res) => {
