@@ -12,7 +12,7 @@ function ProductosPage() {
 
   const obtenerProductos = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/productos");
+      const res = await fetch("/api/productos");
       const data = await res.json();
       setProductos(data);
     } catch (error) {
@@ -27,8 +27,8 @@ function ProductosPage() {
   const guardarProducto = async (e) => {
     e.preventDefault();
     const url = editando
-      ? `http://localhost:5000/api/productos/${productoActual.id}`
-      : "http://localhost:5000/api/productos";
+      ? `/api/productos/${productoActual.id}`
+      : "/api/productos";
     const method = editando ? "PUT" : "POST";
 
     try {

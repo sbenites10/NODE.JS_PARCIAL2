@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
 import PlataformaPage from "./pages/PlataformaPage";
 import ProductosPage from "./pages/ProductosPage";
+import TenderoPage from "./pages/TenderoPage";
+import HistorialPedidosPage from "./pages/HistorialPedidosPage";
 import ProveedorDashboard from "./components/Proveedor/ProveedorDashboard";
 import "./App.css";
 
@@ -21,6 +23,12 @@ function App() {
 
         {/* Dashboard del proveedor */}
         <Route path="/proveedor" element={<ProveedorDashboard />} />
+
+        {/* Dashboard del tendero */}
+        <Route path="/tendero" element={<TenderoPage />} />
+        
+        {/* Historial de pedidos del tendero */}
+        <Route path="/historial-pedidos" element={<HistorialPedidosPage />} />
       </Routes>
     </BrowserRouter>
   );

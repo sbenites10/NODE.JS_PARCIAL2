@@ -19,7 +19,7 @@ function ProveedorDashboard() {
     const fetchPedidos = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/proveedores/${proveedorId}/pedidos`
+          `/api/proveedores/${proveedorId}/pedidos`
         );
         const data = await response.json();
 
