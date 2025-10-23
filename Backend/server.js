@@ -1,15 +1,20 @@
 import express from 'express';
 import cors from 'cors';
 import connection from './src/config/database.js';
+import dotenv from "dotenv";
+
 import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import proveedorRoutes from "./src/routes/proveedorRoutes.js";
+import productoRoutes from "./src/routes/productoRoutes.js";
 
+dotenv.config();
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/productos", productoRoutes);
 app.use("/api/proveedores", proveedorRoutes);
 
 // 🔍 Ruta de prueba para verificar conexión MySQL

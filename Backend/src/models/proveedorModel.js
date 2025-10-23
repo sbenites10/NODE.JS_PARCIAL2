@@ -51,3 +51,28 @@ export const deleteProveedor = async (id) => {
   );
   return result.affectedRows > 0;
 };
+
+export const obtenerPedidosPorProveedorDB = async (proveedorId) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT 
+          p.id AS pedido_id,
+          p.fecha,
+          p.estado,
+          p.total,
+          z.nombre AS zona,
+          u.nombre AS tendero
+       FROM pedidos p
+       JOIN zonas z ON p.zona_id = z.id
+       JOIN usuarios u ON p.tendero_id = u.id
+       JOIN consolidaciones c ON p.consolidacion_id = c.id
+       WHERE c.proveedor_id = ?`,
+      [proveedorId]
+    );
+
+    return rows;
+  } catch (error) {
+    console.error("❌ Error SQL:", error);
+    throw error;
+  }
+};

@@ -3,7 +3,8 @@ import {
   getProveedorById,
   createProveedor,
   updateProveedor,
-  deleteProveedor
+  deleteProveedor,
+  obtenerPedidosPorProveedorDB
 } from "../models/proveedorModel.js";
 
 // Obtener todos los proveedores
@@ -67,5 +68,17 @@ export const eliminarProveedor = async (req, res) => {
   } catch (error) {
     console.error("Error al eliminar proveedor:", error);
     res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+export const obtenerPedidosPorProveedor = async (req, res) => {
+  const proveedorId = req.params.id;
+
+  try {
+    const pedidos = await obtenerPedidosPorProveedorDB(proveedorId);
+    res.status(200).json(pedidos);
+  } catch (error) {
+    console.error("❌ Error en obtenerPedidosPorProveedor:", error);
+    res.status(500).json({ message: "Error al obtener pedidos del proveedor", error: error.message });
   }
 };
