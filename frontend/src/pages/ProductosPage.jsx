@@ -10,7 +10,6 @@ function ProductosPage() {
   const [productoActual, setProductoActual] = useState(null);
   const [formData, setFormData] = useState({ nombre: "", tipo: "", precio: "" });
 
-  // 🔹 Obtener productos del backend
   const obtenerProductos = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/productos");
@@ -25,7 +24,6 @@ function ProductosPage() {
     obtenerProductos();
   }, []);
 
-  // 🔹 Crear o editar producto
   const guardarProducto = async (e) => {
     e.preventDefault();
     const url = editando
@@ -54,7 +52,6 @@ function ProductosPage() {
     }
   };
 
-  // 🔹 Abrir modal en modo edición
   const editarProducto = (producto) => {
     setProductoActual(producto);
     setFormData({
@@ -67,39 +64,42 @@ function ProductosPage() {
   };
 
   return (
-    <div className="productos-container bg-gradient">
-      <div className="productos-header">
-        <button className="btn-secondary" onClick={() => navigate("/plataforma")}>
-          ← Volver al Menú
-        </button>
-        <h1 className="productos-title">📦 Gestión de Productos</h1>
-        <button
-          className="btn-primary"
-          onClick={() => {
-            setShowModal(true);
-            setEditando(false);
-            setFormData({ nombre: "", tipo: "", precio: "" });
-          }}
-        >
-          ➕ Crear Producto
-        </button>
-      </div>
+    <div className="bg-gradient">
+      <div className="card container fadeIn" style={{ maxWidth: "900px" }}>
+        <div className="productos-header">
+          <h2>📦 Gestión de Productos</h2>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button className="btn btn-secondary" onClick={() => navigate("/plataforma")}>
+              ← Volver
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setShowModal(true);
+                setEditando(false);
+                setFormData({ nombre: "", tipo: "", precio: "" });
+              }}
+            >
+              ➕ Nuevo
+            </button>
+          </div>
+        </div>
 
-      {/* Tabla centrada */}
-      <div className="tabla-wrapper centered">
-        <table className="tabla-productos">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Tipo</th>
-              <th>Precio</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productos.length > 0 ? (
-              productos.map((p) => (
+        {productos.length === 0 ? (
+          <p>No hay productos registrados.</p>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.map((p) => (
                 <tr key={p.id}>
                   <td>{p.id}</td>
                   <td>{p.nombre}</td>
@@ -107,31 +107,30 @@ function ProductosPage() {
                   <td>${p.precio}</td>
                   <td>
                     <button
-                      className="btn-warning"
+                      className="btn btn-warning"
                       onClick={() => editarProducto(p)}
                     >
                       ✏️ Editar
                     </button>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="no-data">
-                  No hay productos registrados
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        <p className="login-footer">© 2025 Plataforma de Productos</p>
       </div>
 
-      {/* Modal */}
+      {/* 🔹 MODAL EMERGENTE CENTRADO */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="modal-title">
-              {editando ? "✏️ Editar Producto" : "🧾 Crear Nuevo Producto"}
+              {editando ? "✏️ Editar Producto" : "🧾 Nuevo Producto"}
             </h2>
             <form onSubmit={guardarProducto} className="modal-form">
               <input
@@ -162,12 +161,12 @@ function ProductosPage() {
                 required
               />
               <div className="modal-buttons">
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn btn-primary">
                   {editando ? "Actualizar" : "Guardar"}
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="btn btn-secondary"
                   onClick={() => setShowModal(false)}
                 >
                   Cancelar
