@@ -7,7 +7,7 @@ function ProveedorDashboard() {
   const [error, setError] = useState(null);
 
   // Obtener el id del proveedor guardado
-  const proveedorId = localStorage.getItem("proveedorId");
+  const proveedorId = localStorage.getItem("proveedorId")?.trim();;
 
   // Si no hay proveedor logueado, redirigir al login
   if (!proveedorId) {

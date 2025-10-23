@@ -30,8 +30,8 @@ function LoginForm() {
         if (data.rol === "tendero") {
           window.location.href = "/tendero";
         } else if (data.rol === "proveedor") {
-          localStorage.setItem("proveedorId", data.id); // Guarda ID del proveedor
-          window.location.href = "/proveedor"; // Redirige a la vista del proveedor
+          localStorage.setItem("proveedorId", String(data.id).trim()); // Guarda ID del proveedor
+          navigate("/proveedor"); // Redirige a la vista del proveedor
         } else if (data.rol === "admin") {
           window.location.href = "/plataforma";
         }
