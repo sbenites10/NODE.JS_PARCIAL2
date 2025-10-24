@@ -64,7 +64,7 @@ function ProductosPage() {
   };
 
   return (
-    <div className="bg-gradient">
+    <div className="bg-gradient productos-page">
       <div className="card container fadeIn" style={{ maxWidth: "900px" }}>
         <div className="productos-header">
           <h2>📦 Gestión de Productos</h2>
