@@ -33,6 +33,20 @@ function PlataformaPage() {
           >
             📊 Informe de Pedidos
           </button>
+
+          <button
+            className="menu-btn"
+            onClick={() => navigate("/consolidar-pedidos")}
+          >
+            🔄 Consolidar Pedidos
+          </button>
+
+          <button
+            className="menu-btn"
+            onClick={() => navigate("/consolidaciones")}
+          >
+            📦 Ver Consolidaciones
+          </button>
         </div>
       </div>
     </div>

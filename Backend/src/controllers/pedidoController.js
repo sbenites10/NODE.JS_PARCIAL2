@@ -229,3 +229,41 @@ export const listarTodosPedidos = async (req, res) => {
   }
 };
 
+// 8) Confirmar recepción del pedido (tendero)
+export const confirmarRecepcion = async (req, res) => {
+  try {
+    const pedidoId = Number(req.params.id);
+    
+    const [pedidos] = await pool.query(
+      "SELECT estado FROM pedidos WHERE id = ?",
+      [pedidoId]
+    );
+    
+    if (pedidos.length === 0) {
+      return res.status(404).json({ message: "Pedido no encontrado" });
+    }
+    
+    if (pedidos[0].estado !== 'entregado') {
+      return res.status(400).json({ 
+        message: "Solo se puede confirmar recepción de pedidos en estado 'entregado'",
+        estado_actual: pedidos[0].estado
+      });
+    }
+    
+    await pool.query(
+      "UPDATE pedidos SET estado = 'recibido' WHERE id = ?",
+      [pedidoId]
+    );
+    
+    res.json({ 
+      message: "Recepción confirmada correctamente",
+      pedido_id: pedidoId,
+      estado: 'recibido'
+    });
+    
+  } catch (error) {
+    console.error("Error en confirmarRecepcion:", error);
+    res.status(500).json({ message: "Error al confirmar recepción" });
+  }
+};
+

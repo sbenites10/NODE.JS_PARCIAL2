@@ -37,8 +37,10 @@ export default function ProveedorDashboard() {
   const getEstadoColor = (estado) => {
     const colores = {
       "en consolidación": "#3b82f6",
+      "en_preparacion": "#f59e0b",
       confirmado: "#8b5cf6",
       despachado: "#06b6d4",
+      enviado: "#3b82f6",
       entregado: "#10b981",
       cancelado: "#ef4444",
     };
@@ -48,17 +50,47 @@ export default function ProveedorDashboard() {
   const getEstadoTexto = (estado) => {
     const textos = {
       "en consolidación": "📦 En Consolidación",
+      "en_preparacion": "📦 En Preparación",
       confirmado: "✅ Confirmado",
       despachado: "🚚 Despachado",
+      enviado: "🚚 Enviado",
       entregado: "📬 Entregado",
       cancelado: "❌ Cancelado",
     };
     return textos[estado] || estado;
   };
 
-  const handleAccion = (accion, pedidoId) => {
-    console.log(`Ejecutar acción "${accion}" sobre pedido ${pedidoId}`);
-    alert(`🔧 Acción "${accion}" ejecutada (simulación)`);
+  const handleAccion = async (accion, consolidacionId) => {
+    let nuevoEstado = null;
+    
+    if (accion === "Marcar como enviado") {
+      nuevoEstado = "enviado";
+    } else if (accion === "Marcar como entregado") {
+      nuevoEstado = "entregado";
+    }
+    
+    if (!nuevoEstado) {
+      alert(`🔧 Acción "${accion}" (simulación)`);
+      return;
+    }
+    
+    if (!confirm(`¿Cambiar estado a "${nuevoEstado}"?`)) return;
+    
+    try {
+      const res = await fetch(`/api/consolidaciones/${consolidacionId}/estado`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+      
+      if (!res.ok) throw new Error("Error al actualizar estado");
+      
+      alert(`✅ Estado actualizado correctamente`);
+      cargarPedidos(); // Recargar la lista
+    } catch (error) {
+      console.error("Error:", error);
+      alert(`❌ Error al actualizar estado: ${error.message}`);
+    }
   };
 
   const handleLogout = () => {
@@ -277,20 +309,26 @@ export default function ProveedorDashboard() {
 
                 <h3>Acciones disponibles</h3>
                 {detalle.acciones && detalle.acciones.length > 0 ? (
-                  detalle.acciones.map((accion, idx) => (
-                    <button
-                      key={idx}
-                      className="btn btn-primary"
-                      style={{ marginRight: "8px", marginTop: "8px" }}
-                      onClick={() =>
-                        handleAccion(accion, detalle.pedido_id)
-                      }
-                    >
-                      {accion}
-                    </button>
-                  ))
+                  detalle.acciones
+                    .filter(accion => accion !== "Ver detalles") // Filtrar "Ver detalles"
+                    .map((accion, idx) => (
+                      <button
+                        key={idx}
+                        className="btn btn-primary"
+                        style={{ marginRight: "8px", marginTop: "8px" }}
+                        onClick={() =>
+                          handleAccion(accion, detalle.consolidacion_id || detalle.pedido_id)
+                        }
+                      >
+                        {accion}
+                      </button>
+                    ))
                 ) : (
-                  <p style={{ color: "#6b7280" }}>No hay acciones disponibles</p>
+                  <p style={{ color: "#6b7280" }}>
+                    {detalle.estado === "entregado" 
+                      ? "✅ Esta consolidación ya fue entregada" 
+                      : "No hay acciones disponibles"}
+                  </p>
                 )}
               </>
             )}

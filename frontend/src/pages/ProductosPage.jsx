@@ -9,6 +9,16 @@ function ProductosPage() {
   const [editando, setEditando] = useState(false);
   const [productoActual, setProductoActual] = useState(null);
   const [formData, setFormData] = useState({ nombre: "", tipo: "", precio: "" });
+  
+  // Categorías disponibles (deben coincidir con las de la BD)
+  const categorias = [
+    "Granos y abarrotes",
+    "Bebidas y lácteos",
+    "Productos de aseo y limpieza",
+    "Dulces",
+    "Carnes y embutidos",
+    "Enlatados y procesados"
+  ];
 
   const obtenerProductos = async () => {
     try {
@@ -142,15 +152,26 @@ function ProductosPage() {
                 }
                 required
               />
-              <input
-                type="text"
-                placeholder="Tipo"
+              <select
                 value={formData.tipo}
                 onChange={(e) =>
                   setFormData({ ...formData, tipo: e.target.value })
                 }
                 required
-              />
+                style={{
+                  padding: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  fontSize: "14px"
+                }}
+              >
+                <option value="">Selecciona una categoría</option>
+                {categorias.map((cat, idx) => (
+                  <option key={idx} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
               <input
                 type="number"
                 placeholder="Precio"

@@ -1,105 +1,71 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
 
-export default function InformePedidos() {
-  const [pedidos, setPedidos] = useState([]);
-  const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
+export default function ConsolidacionesPage() {
+  const [consolidaciones, setConsolidaciones] = useState([]);
+  const [consolidacionSeleccionada, setConsolidacionSeleccionada] = useState(null);
+  const [detalle, setDetalle] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  // === CARGAR PEDIDOS ===
+  // === CARGAR CONSOLIDACIONES ===
   useEffect(() => {
-    const obtenerPedidos = async () => {
+    const obtenerConsolidaciones = async () => {
       try {
-        const res = await fetch("/api/pedidos/todos");
+        const res = await fetch("/api/consolidaciones");
         if (!res.ok) {
           const msg = await res.text();
           throw new Error(`Error ${res.status}: ${msg}`);
         }
         const data = await res.json();
-        setPedidos(data);
+        setConsolidaciones(data);
       } catch (err) {
-        console.error("Error al cargar pedidos:", err);
-        setError("No se pudieron cargar los pedidos");
+        console.error("Error al cargar consolidaciones:", err);
+        setError("No se pudieron cargar las consolidaciones");
       } finally {
         setCargando(false);
       }
     };
-    obtenerPedidos();
+    obtenerConsolidaciones();
   }, []);
 
-  // === CARGAR DETALLE DEL PEDIDO ===
-  const cargarDetallePedido = async (pedidoId) => {
+  // === CARGAR DETALLE DE CONSOLIDACIÓN ===
+  const cargarDetalleConsolidacion = async (consolidacionId) => {
     try {
-      const res = await fetch(`/api/pedidos/${pedidoId}`);
+      const res = await fetch(`/api/consolidaciones/${consolidacionId}`);
       if (!res.ok) throw new Error("Error al cargar detalle");
       const data = await res.json();
-      
-      // Buscar info adicional del pedido en la lista
-      const pedidoInfo = pedidos.find(p => p.id === pedidoId);
-      if (pedidoInfo) {
-        data.tendero = pedidoInfo.tendero;
-        data.zona = pedidoInfo.zona;
-      }
-      
-      setPedidoSeleccionado(data);
+      setDetalle(data);
+      setConsolidacionSeleccionada(consolidacionId);
     } catch (err) {
       console.error("Error al cargar detalle:", err);
-      alert("No se pudo cargar el detalle del pedido");
-    }
-  };
-
-  // === CAMBIAR ESTADO ===
-  const actualizarEstado = async (idPedido, nuevoEstado) => {
-    try {
-      const res = await fetch(`/api/pedidos/${idPedido}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ estado: nuevoEstado }),
-      });
-
-      if (!res.ok) throw new Error("Error al actualizar estado");
-      alert(`Pedido #${idPedido} actualizado a: ${nuevoEstado}`);
-
-      const updated = pedidos.map((p) =>
-        p.id === idPedido ? { ...p, estado: nuevoEstado } : p
-      );
-      setPedidos(updated);
-      if (pedidoSeleccionado?.id === idPedido)
-        setPedidoSeleccionado({ ...pedidoSeleccionado, estado: nuevoEstado });
-    } catch (err) {
-      console.error("Error al actualizar estado:", err);
-      alert("No se pudo actualizar el estado.");
-    }
-  };
-
-  // === EVENTO CONSOLIDAR ===
-  const handleConsolidar = () => {
-    if (!pedidoSeleccionado) return;
-    if (pedidoSeleccionado.estado === "pendiente") {
-      actualizarEstado(pedidoSeleccionado.id, "en_asignacion");
-    } else {
-      alert("⚠️ El pedido ya está en asignación o completado.");
+      alert("No se pudo cargar el detalle de la consolidación");
     }
   };
 
   // === COLORES DE ESTADO ===
   const getEstadoColor = (estado) => {
     const colores = {
-      pendiente: "#facc15",
-      consolidacion: "#3b82f6",
-      en_asignacion: "#3b82f6",
-      en_preparacion: "#8b5cf6",
+      en_preparacion: "#f59e0b",
+      enviado: "#3b82f6",
       entregado: "#10b981",
-      cancelado: "#ef4444",
     };
     return colores[estado] || "#6b7280";
+  };
+
+  const getEstadoTexto = (estado) => {
+    const textos = {
+      en_preparacion: "En Preparación",
+      enviado: "Enviado",
+      entregado: "Entregado",
+    };
+    return textos[estado] || estado;
   };
 
   if (cargando)
     return (
       <div className="card" style={{ padding: "40px", textAlign: "center" }}>
-        <p>Cargando pedidos...</p>
+        <p>Cargando consolidaciones...</p>
       </div>
     );
 
@@ -134,19 +100,22 @@ export default function InformePedidos() {
       >
         <div>
           <h1 style={{ margin: 0, fontSize: "28px", color: "white" }}>
-            📊 Informe General de Pedidos
+            📦 Consolidaciones Creadas
           </h1>
           <p style={{ margin: "8px 0 0 0", opacity: 0.9 }}>
-            Visualiza y gestiona todos los pedidos realizados por los tenderos
+            Visualiza todas las consolidaciones con sus productos y proveedores asignados
           </p>
         </div>
       </div>
 
       {/* ======= Contenido ======= */}
-      {pedidos.length === 0 ? (
+      {consolidaciones.length === 0 ? (
         <div className="card" style={{ padding: "40px", textAlign: "center" }}>
           <p style={{ color: "#6b7280", fontSize: "16px" }}>
-            No hay pedidos registrados actualmente.
+            No hay consolidaciones creadas actualmente.
+          </p>
+          <p style={{ color: "#6b7280", fontSize: "14px", marginTop: "8px" }}>
+            Ve a "Consolidar Pedidos" para crear consolidaciones desde pedidos pendientes.
           </p>
         </div>
       ) : (
@@ -157,20 +126,20 @@ export default function InformePedidos() {
             gap: "24px",
           }}
         >
-          {/* ===== Lista de pedidos ===== */}
+          {/* ===== Lista de consolidaciones ===== */}
           <div className="card" style={{ padding: "24px" }}>
-            <h2 style={{ marginTop: 0 }}>Pedidos Recibidos</h2>
+            <h2 style={{ marginTop: 0 }}>Lista de Consolidaciones</h2>
             <div style={{ maxHeight: "600px", overflowY: "auto" }}>
-              {pedidos.map((p) => (
+              {consolidaciones.map((c) => (
                 <div
-                  key={p.id}
-                  onClick={() => cargarDetallePedido(p.id)}
+                  key={c.id}
+                  onClick={() => cargarDetalleConsolidacion(c.id)}
                   style={{
                     padding: "16px",
                     background:
-                      pedidoSeleccionado?.id === p.id ? "#f3f4f6" : "white",
+                      consolidacionSeleccionada === c.id ? "#f3f4f6" : "white",
                     border: `2px solid ${
-                      pedidoSeleccionado?.id === p.id ? "#1E3A8A" : "#e5e7eb"
+                      consolidacionSeleccionada === c.id ? "#1E3A8A" : "#e5e7eb"
                     }`,
                     borderRadius: "8px",
                     marginBottom: "12px",
@@ -186,7 +155,7 @@ export default function InformePedidos() {
                     }}
                   >
                     <span style={{ fontWeight: "600", fontSize: "16px" }}>
-                      Pedido #{p.id}
+                      Consolidación #{c.id}
                     </span>
                     <span
                       style={{
@@ -194,15 +163,18 @@ export default function InformePedidos() {
                         borderRadius: "12px",
                         fontSize: "12px",
                         fontWeight: "600",
-                        background: getEstadoColor(p.estado) + "20",
-                        color: getEstadoColor(p.estado),
+                        background: getEstadoColor(c.estado) + "20",
+                        color: getEstadoColor(c.estado),
                       }}
                     >
-                      {p.estado}
+                      {getEstadoTexto(c.estado)}
                     </span>
                   </div>
                   <div style={{ fontSize: "14px", color: "#6b7280" }}>
-                    🧍 {p.tendero} — 🗺️ {p.zona}
+                    🚛 {c.proveedor_nombre}
+                  </div>
+                  <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                    📍 {c.zona_nombre}
                   </div>
                   <div
                     style={{
@@ -212,14 +184,14 @@ export default function InformePedidos() {
                       marginTop: "8px",
                     }}
                   >
-                    ${p.total?.toLocaleString("es-CO")}
+                    ${c.total?.toLocaleString("es-CO")}
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ===== Detalle del pedido ===== */}
+          {/* ===== Detalle de la consolidación ===== */}
           <div
             className="card"
             style={{
@@ -229,7 +201,7 @@ export default function InformePedidos() {
               height: "fit-content",
             }}
           >
-            {!pedidoSeleccionado ? (
+            {!detalle ? (
               <div
                 style={{
                   textAlign: "center",
@@ -237,7 +209,7 @@ export default function InformePedidos() {
                   color: "#6b7280",
                 }}
               >
-                <p>Selecciona un pedido para ver sus detalles</p>
+                <p>Selecciona una consolidación para ver sus detalles</p>
               </div>
             ) : (
               <>
@@ -250,7 +222,7 @@ export default function InformePedidos() {
                   }}
                 >
                   <h2 style={{ margin: 0 }}>
-                    Detalle del Pedido #{pedidoSeleccionado.id}
+                    Consolidación #{detalle.id}
                   </h2>
                   <span
                     style={{
@@ -258,26 +230,30 @@ export default function InformePedidos() {
                       borderRadius: "16px",
                       fontSize: "14px",
                       fontWeight: "600",
-                      background:
-                        getEstadoColor(pedidoSeleccionado.estado) + "20",
-                      color: getEstadoColor(pedidoSeleccionado.estado),
+                      background: getEstadoColor(detalle.estado) + "20",
+                      color: getEstadoColor(detalle.estado),
                     }}
                   >
-                    {pedidoSeleccionado.estado}
+                    {getEstadoTexto(detalle.estado)}
                   </span>
                 </div>
 
-                <div style={{ marginBottom: "16px" }}>
-                  <p style={{ marginBottom: "8px" }}>
-                    <strong>Tendero:</strong> {pedidoSeleccionado.tendero || "No disponible"}
-                  </p>
-                  <p style={{ marginBottom: "8px" }}>
-                    <strong>Zona:</strong> {pedidoSeleccionado.zona || "No disponible"}
-                  </p>
-                </div>
+                <p>
+                  <strong>Proveedor:</strong> {detalle.proveedor_nombre}
+                </p>
+                <p>
+                  <strong>Email:</strong> {detalle.proveedor_email}
+                </p>
+                <p>
+                  <strong>Zona:</strong> {detalle.zona_nombre}
+                </p>
+                <p>
+                  <strong>Fecha:</strong>{" "}
+                  {new Date(detalle.fecha_consolidacion).toLocaleString("es-CO")}
+                </p>
 
                 <h3 style={{ fontSize: "16px", marginTop: "16px" }}>
-                  Productos
+                  Productos Consolidados
                 </h3>
                 <div
                   style={{
@@ -289,25 +265,32 @@ export default function InformePedidos() {
                     overflowY: "auto",
                   }}
                 >
-                  {Array.isArray(pedidoSeleccionado.items) &&
-                  pedidoSeleccionado.items.length > 0 ? (
-                    pedidoSeleccionado.items.map((item, idx) => (
-                      <div 
+                  {Array.isArray(detalle.productos) &&
+                  detalle.productos.length > 0 ? (
+                    detalle.productos.map((prod, idx) => (
+                      <div
                         key={idx}
                         style={{
                           padding: "8px",
-                          borderBottom: idx < pedidoSeleccionado.items.length - 1 ? "1px solid #e5e7eb" : "none",
+                          borderBottom:
+                            idx < detalle.productos.length - 1
+                              ? "1px solid #e5e7eb"
+                              : "none",
                         }}
                       >
-                        <div style={{ fontWeight: "600" }}>{item.nombre}</div>
+                        <div style={{ fontWeight: "600" }}>
+                          {prod.producto_nombre}
+                        </div>
                         <div style={{ fontSize: "14px", color: "#6b7280" }}>
-                          Cantidad: {item.cantidad} | Subtotal: ${item.subtotal?.toLocaleString("es-CO")}
+                          Tendero: {prod.tendero_nombre} | Cantidad:{" "}
+                          {prod.cantidad} | Subtotal: $
+                          {prod.subtotal?.toLocaleString("es-CO")}
                         </div>
                       </div>
                     ))
                   ) : (
                     <div style={{ color: "#6b7280" }}>
-                      No hay productos registrados
+                      No hay productos en esta consolidación
                     </div>
                   )}
                 </div>
@@ -322,17 +305,11 @@ export default function InformePedidos() {
                   }}
                 >
                   <div style={{ fontSize: "14px", opacity: 0.9 }}>
-                    Total del pedido
+                    Total de la consolidación
                   </div>
                   <div style={{ fontSize: "28px", fontWeight: "700" }}>
-                    ${pedidoSeleccionado.total?.toLocaleString("es-CO")}
+                    ${detalle.total?.toLocaleString("es-CO")}
                   </div>
-                </div>
-
-                <div style={{ marginTop: "16px" }}>
-                  <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>
-                    <strong>Fecha:</strong> {new Date(pedidoSeleccionado.fecha).toLocaleString("es-CO")}
-                  </p>
                 </div>
               </>
             )}

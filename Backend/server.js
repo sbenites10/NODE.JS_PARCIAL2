@@ -3,9 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connection from "./src/config/database.js";
 import usuarioRoutes from "./src/routes/usuarioRoutes.js";
-import productoRoutes from "./src/routes/productoRoutes.js"; // ✅ nombre correcto
-import proveedorRoutes from "./src/routes/proveedorRoutes.js"; // ✅ nombre correcto
+import productoRoutes from "./src/routes/productoRoutes.js";
+import proveedorRoutes from "./src/routes/proveedorRoutes.js";
 import pedidoRoutes from "./src/routes/pedidoRoutes.js";
+import consolidacionRoutes from "./src/routes/consolidacionRoutes.js";
+import categoriaProveedorRoutes from "./src/routes/categoriaProveedorRoutes.js";
 
 dotenv.config();
 
@@ -13,11 +15,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Rutas correctas
+// Routes
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/proveedores", proveedorRoutes); 
 app.use("/api/pedidos", pedidoRoutes);
+app.use("/api/consolidaciones", consolidacionRoutes);
+app.use("/api/categorias-proveedores", categoriaProveedorRoutes);
 
 // 🔍 Ruta de prueba
 app.get("/api/usuarios", async (req, res) => {

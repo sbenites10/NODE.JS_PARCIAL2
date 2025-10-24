@@ -75,9 +75,26 @@ export default function HistorialPedidosPage() {
       asignacion: "🚚 Asignado a Proveedor",
       despacho: "🛵 En Despacho",
       entregado: "✅ Entregado",
+      recibido: "✅ Recibido y Confirmado",
       cancelado: "❌ Cancelado"
     };
     return textos[estado] || estado;
+  };
+
+  const confirmarRecepcion = async (pedidoId) => {
+    if (!window.confirm("¿Confirmar que recibiste todos los productos de este pedido?")) {
+      return;
+    }
+
+    try {
+      await Api.confirmarRecepcion(pedidoId);
+      alert("✅ Recepción confirmada exitosamente");
+      cargarPedidos();
+      verDetalle(pedidoId); // Recargar detalle
+    } catch (error) {
+      console.error("Error confirmando recepción:", error);
+      alert("❌ Error al confirmar recepción: " + error.message);
+    }
   };
 
   return (
@@ -327,7 +344,7 @@ export default function HistorialPedidosPage() {
                   </div>
                 )}
 
-                {(detalle.estado === "asignacion" || detalle.estado === "despacho" || detalle.estado === "entregado") && (
+                {(detalle.estado === "asignacion" || detalle.estado === "despacho") && (
                   <div style={{
                     padding: "12px",
                     background: "#dcfce7",
@@ -337,6 +354,51 @@ export default function HistorialPedidosPage() {
                     color: "#065f46"
                   }}>
                     ✓ Este pedido está en proceso de entrega
+                  </div>
+                )}
+
+                {detalle.estado === "entregado" && (
+                  <>
+                    <div style={{
+                      padding: "12px",
+                      background: "#dbeafe",
+                      border: "1px solid #3b82f6",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      color: "#1e40af",
+                      marginBottom: "12px"
+                    }}>
+                      📦 Todos los productos de tu pedido han sido entregados. Por favor confirma que los recibiste correctamente.
+                    </div>
+                    <button
+                      onClick={() => confirmarRecepcion(detalle.id)}
+                      style={{
+                        width: "100%",
+                        padding: "12px",
+                        background: "#10b981",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        fontSize: "14px"
+                      }}
+                    >
+                      ✅ Confirmar Recepción
+                    </button>
+                  </>
+                )}
+
+                {detalle.estado === "recibido" && (
+                  <div style={{
+                    padding: "12px",
+                    background: "#dcfce7",
+                    border: "1px solid #10b981",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    color: "#065f46"
+                  }}>
+                    ✅ Pedido recibido y confirmado exitosamente
                   </div>
                 )}
 

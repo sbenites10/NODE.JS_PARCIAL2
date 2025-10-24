@@ -6,7 +6,9 @@ import ProductosPage from "./pages/ProductosPage";
 import TenderoPage from "./pages/TenderoPage";
 import HistorialPedidosPage from "./pages/HistorialPedidosPage";
 import ProveedorDashboard from "./components/Proveedor/ProveedorDashboard";
-import InformePedidosPage from "./pages/InformePedidosPage"; 
+import InformePedidosPage from "./pages/InformePedidosPage";
+import ConsolidarPedidosPage from "./pages/ConsolidarPedidosPage";
+import ConsolidacionesPage from "./pages/ConsolidacionesPage";
 import "./App.css";
 
 function App() {
@@ -32,7 +34,13 @@ function App() {
         <Route path="/historial-pedidos" element={<HistorialPedidosPage />} />
 
         {/* Informe de pedidos para la plataforma */}
-        <Route path="/informe-pedidos" element={<InformePedidosPage />} />  
+        <Route path="/informe-pedidos" element={<InformePedidosPage />} />
+
+        {/* Consolidar pedidos */}
+        <Route path="/consolidar-pedidos" element={<ConsolidarPedidosPage />} />
+
+        {/* Ver consolidaciones */}
+        <Route path="/consolidaciones" element={<ConsolidacionesPage />} />
       </Routes>
     </BrowserRouter>
   );

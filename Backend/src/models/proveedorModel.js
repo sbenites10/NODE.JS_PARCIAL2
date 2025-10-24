@@ -54,51 +54,57 @@ export const deleteProveedor = async (id) => {
 
 export const obtenerPedidosPorProveedorDB = async (proveedorId) => {
   try {
+    // Ahora obtenemos las consolidaciones del proveedor, no los pedidos directamente
     const [rows] = await pool.query(
       `SELECT 
-          p.id AS pedido_id,
-          p.fecha,
-          p.estado,
-          p.total,
+          c.id AS consolidacion_id,
+          c.fecha_consolidacion AS fecha,
+          c.estado,
+          c.total,
           z.nombre AS zona,
-          u.nombre AS tendero,
           COALESCE(
             GROUP_CONCAT(
-              CONCAT('x', pd.cantidad, ' ', pr.nombre)
+              DISTINCT CONCAT('x', cd.cantidad, ' ', pr.nombre)
               ORDER BY pr.nombre SEPARATOR '\n'
             ),
             ''
-          ) AS productos
-       FROM pedidos p
-       JOIN zonas z ON p.zona_id = z.id
-       JOIN usuarios u ON p.tendero_id = u.id
-       JOIN consolidaciones c ON p.consolidacion_id = c.id
-       LEFT JOIN pedido_detalle pd ON pd.pedido_id = p.id
-       LEFT JOIN productos pr ON pr.id = pd.producto_id
+          ) AS productos,
+          GROUP_CONCAT(DISTINCT p.id ORDER BY p.id) AS pedidos_ids,
+          GROUP_CONCAT(DISTINCT u.nombre ORDER BY u.nombre SEPARATOR ', ') AS tenderos
+       FROM consolidaciones c
+       JOIN zonas z ON c.zona_id = z.id
+       JOIN consolidacion_detalle cd ON cd.consolidacion_id = c.id
+       JOIN pedidos p ON p.id = cd.pedido_id
+       JOIN usuarios u ON u.id = p.tendero_id
+       JOIN productos pr ON pr.id = cd.producto_id
        WHERE c.proveedor_id = ?
-       GROUP BY p.id, p.fecha, p.estado, p.total, z.nombre, u.nombre`,
+       GROUP BY c.id, c.fecha_consolidacion, c.estado, c.total, z.nombre
+       ORDER BY c.id DESC`,
       [proveedorId]
     );
 
     // Añadir el campo "acciones" dinámicamente según el estado
-    const pedidosConAcciones = rows.map((p) => {
+    const consolidacionesConAcciones = rows.map((c) => {
       let acciones = ["Ver detalles"];
-      switch (p.estado) {
-        case "consolidacion":
-          acciones.push("Confirmar disponibilidad");
+      switch (c.estado) {
+        case "en_preparacion":
+          acciones.push("Marcar como enviado");
           break;
-        case "confirmado":
-          acciones.push("Marcar como despachado");
-          break;
-        case "despachado":
+        case "enviado":
           acciones.push("Marcar como entregado");
           break;
-        // entregado / cancelado solo pueden ver detalles
+        // entregado no tiene más acciones
       }
-      return { ...p, acciones };
+      return { 
+        ...c, 
+        acciones,
+        // Renombrar para mantener compatibilidad con el frontend existente
+        pedido_id: c.consolidacion_id,
+        tendero: c.tenderos
+      };
     });
 
-    return pedidosConAcciones;
+    return consolidacionesConAcciones;
   } catch (error) {
     console.error("❌ Error SQL:", error);
     throw error;
