@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../App.css";
 
 export default function ConsolidacionesPage() {
+  const navigate = useNavigate();
   const [consolidaciones, setConsolidaciones] = useState([]);
   const [consolidacionSeleccionada, setConsolidacionSeleccionada] = useState(null);
   const [detalle, setDetalle] = useState(null);
@@ -98,6 +100,23 @@ export default function ConsolidacionesPage() {
           alignItems: "center",
         }}
       >
+                 <button
+          onClick={() => navigate("/plataforma")}
+          style={{
+            backgroundColor: "#2563EB",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "600",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#1D4ED8")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#2563EB")}
+        >
+          ← Volver al Menú
+        </button>
         <div>
           <h1 style={{ margin: 0, fontSize: "28px", color: "white" }}>
             📦 Consolidaciones Creadas

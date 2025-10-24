@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // 👈 agregado para la navegación
 import "../App.css";
 
 export default function InformePedidos() {
+  const navigate = useNavigate(); // 👈 necesario para volver
   const [pedidos, setPedidos] = useState([]);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -132,6 +134,24 @@ export default function InformePedidos() {
           alignItems: "center",
         }}
       >
+         {/* 👇 Botón de volver al menú principal */}
+        <button
+          onClick={() => navigate("/plataforma")}
+          style={{
+            backgroundColor: "#2563EB",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "600",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#1D4ED8")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#2563EB")}
+        >
+          ← Volver al Menú
+        </button>
         <div>
           <h1 style={{ margin: 0, fontSize: "28px", color: "white" }}>
             📊 Informe General de Pedidos

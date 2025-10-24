@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../App.css";
 
 export default function ConsolidarPedidosPage() {
+  const navigate = useNavigate(); // 👈 necesario para volver
   const [pedidosPendientes, setPedidosPendientes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [consolidando, setConsolidando] = useState(false);
@@ -128,7 +130,23 @@ export default function ConsolidarPedidosPage() {
           </li>
         </ul>
       </div>
-
+         <button
+          onClick={() => navigate("/plataforma")}
+          style={{
+            backgroundColor: "#2563EB",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "600",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#1D4ED8")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#2563EB")}
+        >
+          ← Volver al Menú
+        </button>
       {/* ======= Botón de Consolidación ======= */}
       <div className="card" style={{ padding: "24px", marginBottom: "24px" }}>
         <div
