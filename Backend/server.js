@@ -30,6 +30,18 @@ app.get("/api/usuarios", async (req, res) => {
   }
 });
 
+app.get("/api/pedidos", (req, res) => {
+  conexion.query("SELECT * FROM pedidos", (error, resultados) => {
+    if (error) {
+      console.error("Error en la consulta:", error);
+      res.status(500).json({ error: "Error en el servidor" });
+    } else {
+      res.json(resultados); // ✅ MySQL devuelve un array
+    }
+  });
+});
+
+
 // 🚀 Servidor
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';

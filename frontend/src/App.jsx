@@ -6,6 +6,7 @@ import ProductosPage from "./pages/ProductosPage";
 import TenderoPage from "./pages/TenderoPage";
 import HistorialPedidosPage from "./pages/HistorialPedidosPage";
 import ProveedorDashboard from "./components/Proveedor/ProveedorDashboard";
+import InformePedidosPage from "./pages/InformePedidosPage"; 
 import "./App.css";
 
 function App() {
@@ -29,6 +30,9 @@ function App() {
         
         {/* Historial de pedidos del tendero */}
         <Route path="/historial-pedidos" element={<HistorialPedidosPage />} />
+
+        {/* Informe de pedidos para la plataforma */}
+        <Route path="/informe-pedidos" element={<InformePedidosPage />} />  
       </Routes>
     </BrowserRouter>
   );
