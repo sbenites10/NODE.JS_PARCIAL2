@@ -5,17 +5,29 @@ import {
   enviarPedido,
   eliminarSiPendiente,
   misPedidos,
-  detallePedido
+  listarTodosPedidos,
+  detallePedido,
 } from "../controllers/pedidoController.js";
 
 const router = express.Router();
 
-// Tendero
-router.post("/", crearOBuscarBorrador);                 // crea o devuelve pedido 'pendiente'
-router.post("/:id/items", agregarActualizarItem);       // agrega/actualiza línea
-router.post("/:id/enviar", enviarPedido);               // pasa a 'consolidacion'
-router.delete("/:id", eliminarSiPendiente);             // elimina si 'pendiente'
-router.get("/", misPedidos);                            // historial del tendero
-router.get("/:id", detallePedido);                      // detalle + items
+/* ======================
+   🧍 RUTAS TENDERO
+====================== */
+router.post("/", crearOBuscarBorrador);          // Crea o devuelve pedido 'pendiente'
+router.post("/:id/items", agregarActualizarItem); // Agrega/actualiza ítem del pedido
+router.post("/:id/enviar", enviarPedido);        // Confirma envío del pedido
+router.delete("/:id", eliminarSiPendiente);      // Elimina si está pendiente
+router.get("/", misPedidos);                     // Ver pedidos del tendero (por ?tendero_id)
+
+/* ======================
+   🧑‍💼 RUTAS ADMIN/PLATAFORMA
+====================== */
+router.get("/todos", listarTodosPedidos);        // Ver todos los pedidos
+
+/* ======================
+   📄 DETALLE PEDIDO
+====================== */
+router.get("/:id", detallePedido);               // Ver detalle de un pedido específico
 
 export default router;

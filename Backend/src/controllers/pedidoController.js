@@ -203,3 +203,29 @@ export const detallePedido = async (req, res) => {
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
+
+
+// 7) Listar todos los pedidos (para admin/plataforma)
+export const listarTodosPedidos = async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT 
+        p.id,
+        u.nombre AS tendero,
+        z.nombre AS zona,
+        p.fecha,
+        p.estado,
+        p.total
+      FROM pedidos p
+      JOIN usuarios u ON p.tendero_id = u.id
+      JOIN zonas z ON p.zona_id = z.id
+      ORDER BY p.fecha DESC
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error en listarTodosPedidos:", error);
+    res.status(500).json({ message: "Error al obtener pedidos" });
+  }
+};
+

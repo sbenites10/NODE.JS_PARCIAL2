@@ -5,7 +5,7 @@ import "../../App.css";
 export default function ProveedorDashboard() {
   const navigate = useNavigate();
   const proveedorId = Number(localStorage.getItem("proveedorId"));
-  const nombreProveedor = localStorage.getItem("nombreProveedor") || "Proveedor";
+  const nombreProveedor = localStorage.getItem("proveedorNombre") || "Proveedor";
   const [pedidos, setPedidos] = useState([]);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [detalle, setDetalle] = useState(null);

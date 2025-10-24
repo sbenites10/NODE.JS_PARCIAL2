@@ -1,110 +1,322 @@
 import React, { useEffect, useState } from "react";
+import "../App.css";
 
 export default function InformePedidos() {
   const [pedidos, setPedidos] = useState([]);
+  const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
-  // ✅ Cargar pedidos al iniciar
+  // === CARGAR PEDIDOS ===
   useEffect(() => {
-    fetch("http://localhost:3000/api/pedidos")
-      .then((res) => res.json())
-      .then((data) => {
+    const obtenerPedidos = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/pedidos/todos");
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(`Error ${res.status}: ${msg}`);
+        }
+        const data = await res.json();
         setPedidos(data);
-        setCargando(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error al cargar pedidos:", err);
+        setError("No se pudieron cargar los pedidos");
+      } finally {
         setCargando(false);
-      });
+      }
+    };
+    obtenerPedidos();
   }, []);
 
-  // ✅ Cambiar estado del pedido
-  const cambiarEstado = async (idPedido, nuevoEstado) => {
+  // === CAMBIAR ESTADO ===
+  const actualizarEstado = async (idPedido, nuevoEstado) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/pedidos/${idPedido}`, {
+      const res = await fetch(`http://localhost:5000/api/pedidos/${idPedido}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ estado: nuevoEstado }),
       });
 
-      if (!res.ok) {
-        throw new Error("Error al actualizar el estado");
-      }
+      if (!res.ok) throw new Error("Error al actualizar estado");
+      alert(`Pedido #${idPedido} actualizado a: ${nuevoEstado}`);
 
-      // Actualiza visualmente sin recargar
-      setPedidos((prevPedidos) =>
-        prevPedidos.map((pedido) =>
-          pedido.id === idPedido ? { ...pedido, estado: nuevoEstado } : pedido
-        )
+      const updated = pedidos.map((p) =>
+        p.id === idPedido ? { ...p, estado: nuevoEstado } : p
       );
-
-      alert("Estado actualizado correctamente ✅");
+      setPedidos(updated);
+      if (pedidoSeleccionado?.id === idPedido)
+        setPedidoSeleccionado({ ...pedidoSeleccionado, estado: nuevoEstado });
     } catch (err) {
-      console.error("Error al cambiar estado:", err);
-      alert("No se pudo actualizar el estado ❌");
+      console.error("Error al actualizar estado:", err);
+      alert("No se pudo actualizar el estado.");
     }
   };
 
-  if (cargando) return <p>Cargando pedidos...</p>;
+  // === EVENTO CONSOLIDAR ===
+  const handleConsolidar = () => {
+    if (!pedidoSeleccionado) return;
+    if (pedidoSeleccionado.estado === "pendiente") {
+      actualizarEstado(pedidoSeleccionado.id, "en_asignacion");
+    } else {
+      alert("⚠️ El pedido ya está en asignación o completado.");
+    }
+  };
+
+  // === COLORES DE ESTADO ===
+  const getEstadoColor = (estado) => {
+    const colores = {
+      pendiente: "#facc15",
+      consolidacion: "#3b82f6",
+      en_asignacion: "#3b82f6",
+      en_preparacion: "#8b5cf6",
+      entregado: "#10b981",
+      cancelado: "#ef4444",
+    };
+    return colores[estado] || "#6b7280";
+  };
+
+  if (cargando)
+    return (
+      <div className="card" style={{ padding: "40px", textAlign: "center" }}>
+        <p>Cargando pedidos...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="card" style={{ padding: "40px", textAlign: "center" }}>
+        <p style={{ color: "red" }}>{error}</p>
+      </div>
+    );
 
   return (
     <div
       style={{
-        textAlign: "center",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        padding: "24px",
+        minWidth: "1400px",
+        margin: "0 auto",
+        justifyContent: "center",
       }}
     >
-      <h2>📋 Informe de Pedidos</h2>
-      <table
+      {/* ======= Encabezado ======= */}
+      <div
         style={{
-          borderCollapse: "collapse",
-          width: "80%",
-          marginTop: "20px",
-          textAlign: "center",
+          backgroundColor: "#1E3A8A",
+          padding: "24px",
+          borderRadius: "12px",
+          marginBottom: "24px",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <thead>
-          <tr style={{ backgroundColor: "#f0f0f0" }}>
-            <th style={{ border: "1px solid #ccc", padding: "10px" }}>ID</th>
-            <th style={{ border: "1px solid #ccc", padding: "10px" }}>Cliente</th>
-            <th style={{ border: "1px solid #ccc", padding: "10px" }}>Estado</th>
-            <th style={{ border: "1px solid #ccc", padding: "10px" }}>Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pedidos.map((pedido) => (
-            <tr key={pedido.id}>
-              <td style={{ border: "1px solid #ccc", padding: "10px" }}>{pedido.id}</td>
-              <td style={{ border: "1px solid #ccc", padding: "10px" }}>{pedido.cliente}</td>
-              <td style={{ border: "1px solid #ccc", padding: "10px" }}>{pedido.estado}</td>
-              <td style={{ border: "1px solid #ccc", padding: "10px" }}>
-                {pedido.estado === "Pendiente" ? (
-                  <button
-                    onClick={() => cambiarEstado(pedido.id, "En asignación")}
+        <div>
+          <h1 style={{ margin: 0, fontSize: "28px", color: "white" }}>
+            📊 Informe General de Pedidos
+          </h1>
+          <p style={{ margin: "8px 0 0 0", opacity: 0.9 }}>
+            Visualiza y gestiona todos los pedidos realizados por los tenderos
+          </p>
+        </div>
+      </div>
+
+      {/* ======= Contenido ======= */}
+      {pedidos.length === 0 ? (
+        <div className="card" style={{ padding: "40px", textAlign: "center" }}>
+          <p style={{ color: "#6b7280", fontSize: "16px" }}>
+            No hay pedidos registrados actualmente.
+          </p>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "24px",
+          }}
+        >
+          {/* ===== Lista de pedidos ===== */}
+          <div className="card" style={{ padding: "24px" }}>
+            <h2 style={{ marginTop: 0 }}>Pedidos Recibidos</h2>
+            <div style={{ maxHeight: "600px", overflowY: "auto" }}>
+              {pedidos.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => setPedidoSeleccionado(p)}
+                  style={{
+                    padding: "16px",
+                    background:
+                      pedidoSeleccionado?.id === p.id ? "#f3f4f6" : "white",
+                    border: `2px solid ${
+                      pedidoSeleccionado?.id === p.id ? "#1E3A8A" : "#e5e7eb"
+                    }`,
+                    borderRadius: "8px",
+                    marginBottom: "12px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <div
                     style={{
-                      backgroundColor: "#007bff",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "6px 10px",
-                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "8px",
                     }}
                   >
-                    Cambiar a En Asignación
+                    <span style={{ fontWeight: "600", fontSize: "16px" }}>
+                      Pedido #{p.id}
+                    </span>
+                    <span
+                      style={{
+                        padding: "4px 12px",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        background: getEstadoColor(p.estado) + "20",
+                        color: getEstadoColor(p.estado),
+                      }}
+                    >
+                      {p.estado}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                    🧍 {p.tendero} — 🗺️ {p.zona}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: "700",
+                      color: "#1E3A8A",
+                      marginTop: "8px",
+                    }}
+                  >
+                    ${p.total?.toLocaleString("es-CO")}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ===== Detalle del pedido ===== */}
+          <div
+            className="card"
+            style={{
+              padding: "24px",
+              position: "sticky",
+              top: "24px",
+              height: "fit-content",
+            }}
+          >
+            {!pedidoSeleccionado ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "40px",
+                  color: "#6b7280",
+                }}
+              >
+                <p>Selecciona un pedido para ver sus detalles</p>
+              </div>
+            ) : (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <h2 style={{ margin: 0 }}>
+                    Detalle del Pedido #{pedidoSeleccionado.id}
+                  </h2>
+                  <span
+                    style={{
+                      padding: "6px 16px",
+                      borderRadius: "16px",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      background:
+                        getEstadoColor(pedidoSeleccionado.estado) + "20",
+                      color: getEstadoColor(pedidoSeleccionado.estado),
+                    }}
+                  >
+                    {pedidoSeleccionado.estado}
+                  </span>
+                </div>
+
+                <p>
+                  <strong>Tendero:</strong> {pedidoSeleccionado.tendero}
+                </p>
+                <p>
+                  <strong>Zona:</strong> {pedidoSeleccionado.zona}
+                </p>
+
+                <h3 style={{ fontSize: "16px", marginTop: "16px" }}>
+                  Productos
+                </h3>
+                <div
+                  style={{
+                    background: "#f9fafb",
+                    padding: "12px",
+                    borderRadius: "8px",
+                    marginBottom: "20px",
+                  }}
+                >
+                  {Array.isArray(pedidoSeleccionado.items) &&
+                  pedidoSeleccionado.items.length > 0 ? (
+                    pedidoSeleccionado.items.map((item, idx) => (
+                      <div key={idx}>
+                        {item.nombre} (x{item.cantidad}) — $
+                        {item.subtotal?.toLocaleString("es-CO")}
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ color: "#6b7280" }}>
+                      No hay productos registrados
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    padding: "16px",
+                    background: "#1E3A8A",
+                    color: "white",
+                    borderRadius: "8px",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div style={{ fontSize: "14px", opacity: 0.9 }}>
+                    Total del pedido
+                  </div>
+                  <div style={{ fontSize: "28px", fontWeight: "700" }}>
+                    ${pedidoSeleccionado.total?.toLocaleString("es-CO")}
+                  </div>
+                </div>
+
+                {pedidoSeleccionado.estado === "pendiente" && (
+                  <button
+                    onClick={handleConsolidar}
+                    style={{
+                      background: "#10B981",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "12px 20px",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Consolidar Pedido
                   </button>
-                ) : (
-                  "—"
                 )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
